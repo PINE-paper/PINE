@@ -2,11 +2,11 @@
 
 PINE is a novel graph measure that achieves state-of-the-art performance in unsupervised node ranking and offers 10x better scalability compared to prior measures. PINE’s design is inspired by Graph Attention Network (GAT), thus providing unprecedented evidence that GATs inherently encode a powerful node centrality. 
 
-<img src="./pictures/pine_scheme1.png" width="40%">
+<img src="./pictures/pine_scheme1.png" width="45%">
 
 The result of PINE work is an identified set of important nodes:
 
-<img src="./pictures/graph_citeseer1.png" width="60%">
+<img src="./pictures/graph_citeseer1.png" width="65%">
 
 # 🚀 Launch PINE
 

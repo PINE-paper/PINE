@@ -161,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_names", nargs='+', default=['cora', 'citeseer', 'pubmed', 'wiki-cs', 'hepth', 'ogbn-arxiv', 'dblp'],
                         help="List of dataset names under study. \
                         Possible options: 'cora', 'citeseer', 'pubmed', 'wiki-cs', 'hepth', 'ogbn-arxiv', 'dblp'")
-    parser.add_argument("--measure_names", nargs='+', default=['pine', 'degree', 'out-degree', 'weighted', 'relative', 'pagerank', 'voterank', 'katz', 'closeness', 'betweenness', 'entropy_dir'],
+    parser.add_argument("--measure_names", nargs='+', default=['pine', 'out-degree', 'pagerank', 'voterank', 'betweenness', 'enrenew'],
                         help="List of measure names to calculate node importance. \
                         Note that some measures are infeasible for calculation on large graphs. \
                         Possible options: 'pine', 'degree', 'out-degree', 'weighted', 'relative', 'pagerank', 'voterank', 'katz', \

@@ -1,12 +1,12 @@
-# PINE🌲: Pipeline for Important Node Exploration in Attributed Networks
+# PINE🌲: Priority-based Important Node Exploration
 
-PINE is an unsupervised approach for identifying important nodes in attributed networks. Importance of nodes is considered within an Influence Maximization (IM) paradigm. In the context of IM, the nodes are vital if they cause a great information spread in the network when a knowledge dissemination starts from them. PINE allows to effectively account for node features to discover crucial nodes from topology and attribute perspectives. PINE framework includes training of Graph Attention Network (GAT) to solve Link Prediction task for a subsequent use of attention distribution in node importance estimation. A presence of learning component is a key difference from the traditional centrlaity measures, like Degree Centrality or PageRank. 
+PINE is a novel graph measure that achieves state-of-the-art performance in unsupervised node ranking and offers 10x better scalability compared to prior measures. PINE’s design is inspired by Graph Attention Network (GAT), thus providing unprecedented evidence that GATs inherently encode a powerful node centrality. 
 
-![pine](./pictures/pine_scheme1.png)
+<img src="./pictures/pine_scheme1.png" width="40%">
 
-In summary, the result of PINE work is an identified set of important nodes in view of graph structure and node attributes:
+The result of PINE work is an identified set of important nodes:
 
-![graph](./pictures/graph_citeseer1.png)
+<img src="./pictures/graph_citeseer1.png" width="60%">
 
 # 🚀 Launch PINE
 
@@ -50,7 +50,7 @@ As we consider attributed networks, it is important to simulate information diff
 ```
 python src/run_methods.py \
 --dataset_names 'cora' 'citeseer' 'pubmed' 'wiki-cs' 'hepth' 'ogbn-arxiv' 'dblp' \
---measure_names 'pine' 'degree' 'out-degree' 'weighted' 'relative' 'pagerank' 'voterank' 'katz' 'closeness' 'betweenness' 'entropy_dir' \
+--measure_names 'pine' 'out-degree' 'pagerank' 'voterank' 'betweenness' 'enrenew' \
 --propagation_model_names 'LT+' 'IC+' 'SIR' \
 --res_folder './simulation_results' \
 --device 'cuda:0' \
@@ -80,86 +80,5 @@ The structure of data files in the folder `FB15K` is the following:
 * `fb_lang.pk` - file with semantic features of nodes
 * `idx_1000` - folder that contains data splits with node IDs and their labels (ground truth markup of node importance scores)
 
-In a heterogeneous case, PINE considers subgraphs with particular edge types separately. For each subgraph that includes edges of one type, PINE produces importance scores for nodes that are part of this subgraph. To run heterogeneous PINE:
-
-```
-python src/heterogeneous_pine_scoring.py \
---dataset_name 'FB15K' \
---data_path './heterogeneous_data' \
---exp_name 'base' \
---graph_data 'fb15k_rel.pk' \
---semantic_data 'fb_lang.pk' \
---split_data 'idx_1000' \
---num_split_idx 1000 \
---result_folder './heterogeneous_results' \
---device 'cuda:0' \
---num_runs 5 \
-```
-
-* `num_runs` - the number of PINE laucnhes on each subgraph
-
-After running the script, `result_folder` will contain folder `{dataset_name}_pine_importances` with json files that store PINE scores for nodes from subgraphs of different edge types. Also, `{dataset_name}_res_{exp_name}.csv` file will be saved in `result_folder`, which includes information on optimized hyperparameters (for GAT within PINE), metrics for solving Link Prediction task, and supervised metrics for node importance estimation problem. Supervised metrics are also provided for out-degree measure to compare with PINE results. 
-
-After scoring subgraphs of different edge type, one needs to aggregate results to get final importance scores for nodes. The validation set is used to select the relevant edge types to target task. Run the following script:
-
-```
-python src/heterogeneous_pine_aggregation.py \
---dataset_name 'FB15K' \
---data_path './heterogeneous_data' \
---exp_name 'base' \
---graph_data 'fb15k_rel.pk' \
---semantic_data 'fb_lang.pk' \
---split_data 'idx_1000' \
---num_split_idx 1000 \
---result_folder './heterogeneous_results' \
---device 'cuda:0' \
---pine_edge_types_folder 'FB15K_pine_importances_base' \
---pine_edge_types_metrics 'FB15K_res_base.csv' \
---final_res_name 'FB15K_final_supervised_res.json' \
---pine_thr 0 \
---train_num 8 \
-```
-
-* `pine_edge_types_folder` - folder with PINE scores for subgraphs of different edge types (result of `heterogeneous_pine_scoring.py` running)
-* `pine_edge_types_metrics` - file with metrics for different edge types (result of `heterogeneous_pine_scoring.py` running)
-* `final_res_name` - name of json file with final supervised metrics
-* `pine_thr` - threshold on Spearman correlation of PINE scores for one edge type and global ground truth scores. This parameter is needed to select edge types for overall PINE score calcultation
-* `train_num` - number of folds to include into train set for supervised evaluation (like it is done in [repo](https://github.com/yankai-chen/EASING))
-
-
-To run full pipeline without division on scoring-aggregation steps:
-```
-bash bin/pine_heterogeneous_pipeline.sh
-```
-
-# Patent data
-
-We provide the studied datasets on patent networks in https://drive.google.com/drive/folders/1ZYhW_FixUBKTDjegfbZKg62VrEAkt0gR?usp=sharing. The folder name, e.g. photolithography_simulation, corresponds to the technological domain, for which patents are collected. Inside each folder, there is a `patents.csv` file with information on patents and their citation relations. The columns in dataframe have the meanings:
-* `title` - title of the patent
-* `id` - the patent number
-* `abstract` - abstract of the patent
-* `claims` - the patent claims
-* `citations` - ids and titles of patents that are cited by the considered patent
-* `cited_by` - ids and titles of patents that cite the considered patent
-* `classification_codes` - patent CPC codes 
-* `date` - the patent published date
-* `id_family` - a group of ids related to the considered patent. A patent can have multiple assigned ids due to being in different statuses or being registered in several jurisdictions
-* `cit` - the ids of patents that are present in the dataframe and are cited by the considered patent
-* `cit_by` - the ids of patents that are present in the dataframe and cite the considered patent
-* `score` - a relevance score of a patent toward the technological domain under consideration. The relevance score is estimated as a cosine similarity beween embeddings of patent title and a domain-related keyword, e.g. "photolithography simulation". Embeddings are obtained with a language model https://huggingface.co/AI-Growth-Lab/PatentSBERTa.
-
-To download all datasets into folder `data`, run:
-```
-bash bin/get_patent_data.sh
-```
-
-The file with partial expert markup is given via [link](https://docs.google.com/document/d/1O0ay6SVFiFTjfwXFgUMyjs0Rf9oURGdW/edit?rtpof=true).
-
-
-
-
-
-
-
-
+In a heterogeneous case, PINE considers the subgraph of the most popular edge type. Refer to the [**notebook**](notebooks/PINE_heterogeneous.ipynb) for computing node importance scores with PINE and othe graph measures on FB15K.
 

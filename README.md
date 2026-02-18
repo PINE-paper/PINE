@@ -1,6 +1,6 @@
 # PINE🌲: Priority-based Important Node Exploration
 
-PINE is a novel graph measure that achieves state-of-the-art performance in unsupervised node ranking and offers 10x better scalability compared to prior measures. PINE’s design is inspired by Graph Attention Network (GAT), thus providing unprecedented evidence that GATs inherently encode a powerful node centrality. 
+PINE is a novel graph measure that achieves state-of-the-art performance in unsupervised node ranking and offers 10x better scalability compared to prior measures. PINE’s design is inspired by Graph Attention Network (GAT), thus providing unprecedented evidence that GATs inherently encode a powerful node centrality. The implementation of PINE is provided in [pine.py](src/baselines/pine.py).
 
 <img src="./pictures/pine_scheme1.png" width="45%">
 
